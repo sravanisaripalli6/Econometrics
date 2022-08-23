@@ -1,0 +1,388 @@
+---
+title: "pandemic_panel_data"
+author: "Sravani Saripalli"
+date: "4/21/2022"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+# installing packages
+```{r}
+# Install packages
+PackageNames <- c("tidyverse", "stargazer", "magrittr", "haven")
+for(i in PackageNames){
+  if(!require(i, character.only = T)){
+    install.packages(i, dependencies = T)
+    require(i, character.only = T)
+  }
+}
+```
+
+```{r}
+#install.packages("sjPlot")
+#install.packages("sjmisc")
+#install.packages("sjlabelled")
+```
+# initiating the packages we are going to use in our project
+
+```{r}
+library(sjPlot)
+library(sjmisc)
+library(sjlabelled)
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(broom)
+library(texreg)
+library(car)
+library(FSA)
+library(lmtest)
+library(sandwich)
+library(knitr)
+```
+# Reading the main data set
+```{r}
+library(readxl)
+pandemic <- read_excel("QCEW_NAICS_q3.xlsx")
+head(pandemic,10)
+```
+# filtering the data only for the industry food sevice and drinking beverages
+```{r}
+pandemic<-filter(pandemic,industry_code == 722 )
+pandemic <- na.omit(pandemic) 
+head(pandemic,10)
+```
+#Year 2020 dataframe
+```{r}
+df_pandemic_2020<-pandemic[, c("area_fips","area_title","industry_title","qtrly_estabs_2020","qtr_emplvl_avg_2020","total_qtrly_wages_2020","taxable_qtrly_wages_2020","qtrly_contributions_2020","qtrly_estabs_total_2020","qtr_emplvl_avg_pct_2020","total_qtrly_wages_pct_2020","taxable_qtrly_wages_pct_2020","qtrly_contributions_pct_2020" )]
+head(df_pandemic_2020,10)
+```
+#Year 2019 dataframe
+```{r}
+df_pandemic_2019<-pandemic[, c("area_fips","area_title","industry_title","qtrly_estabs_2019","qtr_emplvl_avg_2019","total_qtrly_wages_2019","taxable_qtrly_wages_2019","qtrly_contributions_2019","qtrly_estabs_total_2019","qtr_emplvl_avg_pct_2019","total_qtrly_wages_pct_2019","taxable_qtrly_wages_pct_2019","qtrly_contributions_pct_2019" )]
+head(df_pandemic_2019,10)
+```
+# Year 2021 dataframe
+```{r}
+df_pandemic_2021<-pandemic[, c("area_fips","area_title","industry_title","qtrly_estabs_2021","qtr_emplvl_avg_2021","total_qtrly_wages_2021","taxable_qtrly_wages_2021","qtrly_contributions_2021","qtrly_estabs_total_2021","qtr_emplvl_avg_pct_2021","total_qtrly_wages_pct_2021","taxable_qtrly_wages_pct_2021","qtrly_contributions_pct_2021" )]
+head(df_pandemic_2021,10)
+```
+
+#Writing the 2019,2020,2021 dataframes into excel
+```{r}
+#write.csv(df_pandemic_2019,"pandemic_2019.csv", row.names = FALSE)
+```
+
+```{r}
+#write.csv(df_pandemic_2020,"pandemic_2020.csv", row.names = FALSE)
+```
+
+```{r}
+#write.csv(df_pandemic_2021,"pandemic_2021.csv", row.names = FALSE)
+```
+ 
+```{r}
+library(readxl)
+df <- read_excel("pandemic_colab_final.xlsx")
+head(df,10)
+```
+# Data cleaning of final colab
+```{r}
+df %>%
+  # recode empty strings "" by NAs
+  na_if("") %>%
+  # remove NAs
+  na.omit
+```
+
+# Data Visualizations
+```{r}
+#library(dplyr)
+    # check structure, row and column number with: glimpse(df)
+    # convert to numeric e.g. from 2nd column to 10th column
+    #df <- df %>% 
+     #mutate_at(c(2:10), as.numeric)
+```
+
+```{r}
+estabs<-aggregate(df$qtrly_estabs, list(df$Year), FUN=sum)
+colnames(estabs) <- c("Year","Total establishments")
+barplot(estabs$`Total establishments`,
+        names=estabs$Year,
+        horiz=FALSE,
+        cex.names=.75,
+        main="Total establishments over the years",
+        xlab="Years",
+        ylab="Establishments",col="Pink")
+```
+
+```{r}
+emp<-aggregate(df$qtr_emplvl_avg, list(df$Year), FUN=sum)
+colnames(emp) <- c("Year","Employment")
+barplot(emp$Employment,
+        names=emp$Year,
+        horiz=FALSE,
+        cex.names=.75,
+        main="Average employment over the years",
+        xlab="Years",
+        ylab="Avearge employment",col="Purple")
+
+```
+
+```{r}
+wages<-aggregate(df$total_qtrly_wages, list(df$Year), FUN=sum)
+colnames(wages) <- c("Year","Wages")
+barplot(wages$Wages,
+        names=wages$Year,
+        horiz=FALSE,
+        cex.names=.75,
+        main="Total quaterly wages over the years",
+        xlab="Years",
+        ylab="Total wages",col="Sky Blue")
+```
+
+```{r}
+tax_wages<-aggregate(df$taxable_qtrly_wages_2019, list(df$Year), FUN=sum)
+colnames(tax_wages) <- c("Year","tax_wages")
+barplot(tax_wages$tax_wages,
+        names=wages$Year,
+        horiz=FALSE,
+        cex.names=.75,
+        main="Total quaterly taxable wages over the years",
+        xlab="Years",
+        ylab="Total taxable wages",col="Black")
+```
+
+```{r}
+contri<-aggregate(df$qtrly_contributions, list(df$Year), FUN=sum)
+colnames(contri) <- c("Year","contributions")
+barplot(contri$contributions,
+        names=contri$Year,
+        horiz=FALSE,
+        cex.names=.75,
+        main="Total contributions over the years",
+        xlab="Years",
+        ylab="Total contributions",col="Yellow")
+```
+
+
+```{r}
+# install.packages("plm")
+library(plm)
+```
+
+```{r}
+df<-unique(df)
+```
+
+```{r}
+df<-na.omit(df)
+```
+
+```{r}
+library(readxl)
+y19_20 <- read_excel("~/Downloads/2019_20_maskmandate_lockdown.xlsx")
+```
+
+# Difference-in-differences model -----------------------------------------
+```{r results="asis"}
+# Regression before  (year 2019)  and during pandemic (year 2020)
+estabs_mask = lm(qtrly_estabs ~ y19_20*mask_mandate,data=y19_20)
+model_11_robust <- coeftest(estabs_mask, vcov=vcovHC(estabs_mask, "HC1"))
+summary(model_11_robust)
+```
+
+```{r}
+estabs_lockdown = lm(qtrly_estabs ~ y19_20*Lockdown,data=y19_20)
+model_12_robust <- coeftest(estabs_lockdown, vcov=vcovHC(estabs_lockdown, "HC1"))
+summary(model_12_robust)
+```
+
+```{r}
+emp_mask = lm(qtr_emplvl_avg ~ y19_20*mask_mandate,data=y19_20)
+model_13_robust <- coeftest(emp_mask, vcov=vcovHC(emp_mask, "HC1"))
+summary(model_13_robust)
+```
+
+```{r}
+emp_lockdown = lm(qtr_emplvl_avg ~ y19_20*Lockdown,data=y19_20)
+model_14_robust <- coeftest(emp_lockdown, vcov=vcovHC(emp_lockdown, "HC1"))
+summary(model_14_robust)
+```
+
+```{r}
+emp_wage_mask = lm(total_qtrly_wages ~ y19_20*mask_mandate,data=y19_20)
+model_15_robust <- coeftest(emp_wage_mask, vcov=vcovHC(emp_wage_mask, "HC1"))
+summary(model_15_robust)
+```
+
+```{r}
+emp_wage_lock <-lm(total_qtrly_wages ~ y19_20*Lockdown,data=y19_20)
+model_16_robust <- coeftest(emp_wage_lock, vcov=vcovHC(emp_wage_lock, "HC1"))
+summary(model_16_robust)
+```
+
+```{r}
+contri_mask<-lm(qtrly_contributions~y19_20*mask_mandate,data=y19_20)
+model_17_robust <- coeftest(emp_wage_lock, vcov=vcovHC(emp_wage_lock, "HC1"))
+summary(model_17_robust)
+```
+
+```{r}
+contri_lockdown<-lm(qtrly_contributions~y19_20*Lockdown,data=y19_20)
+model_18_robust <- coeftest(contri_lockdown, vcov=vcovHC(contri_lockdown, "HC1"))
+summary(model_18_robust)
+```
+
+
+
+```{r}
+# Regression during pandemic (year 2020) and after pandemic (year 2021)
+y_20_21 <- read_excel("~/Downloads/y_20_21.xlsx")
+```
+
+```{r}
+estabs_mask1 = lm(qtrly_estabs_2020 ~ mask*y20_21,data=y_20_21)
+model_21_robust <- coeftest(estabs_mask1, vcov=vcovHC(estabs_mask1, "HC1"))
+summary(model_21_robust)
+```
+
+
+```{r}
+estabs_lockdown1 = lm(qtrly_estabs_2020 ~ lockdown*y20_21,data=y_20_21)
+model_22_robust <- coeftest(estabs_lockdown1, vcov=vcovHC(estabs_lockdown1, "HC1"))
+summary(model_22_robust)
+```
+
+```{r}
+emp_mask1 = lm(qtr_emplvl_avg_2020 ~ mask*y20_21,data=y_20_21)
+model_23_robust <- coeftest(estabs_lockdown1, vcov=vcovHC(emp_mask1, "HC1"))
+summary(model_23_robust)
+```
+
+```{r}
+emp_lock1 = lm(qtr_emplvl_avg_2020 ~ lockdown*y20_21,data=y_20_21)
+model_24_robust <- coeftest(emp_lock1, vcov=vcovHC(emp_lock1, "HC1"))
+summary(model_24_robust)
+```
+
+```{r}
+wage_mask1 = lm(total_qtrly_wages_2020 ~ mask*y20_21,data=y_20_21)
+model_25_robust <- coeftest(wage_mask1, vcov=vcovHC(wage_mask1, "HC1"))
+summary(model_25_robust)
+```
+
+
+```{r}
+wage_lock1 = lm(total_qtrly_wages_2020 ~ lockdown*y20_21,data=y_20_21)
+model_26_robust <- coeftest(wage_lock1, vcov=vcovHC(wage_lock1, "HC1"))
+summary(model_26_robust)
+```
+
+```{r}
+contri_mask1=lm(qtrly_contributions_2020 ~ mask*y20_21,data=y_20_21)
+model_27_robust <- coeftest(contri_mask1, vcov=vcovHC(contri_mask1, "HC1"))
+summary(model_27_robust)
+```
+
+```{r}
+contri_lock1=lm(qtrly_contributions_2020 ~ lockdown*y20_21,data=y_20_21)
+model_28_robust <- coeftest(contri_lock1, vcov=vcovHC(contri_lock1, "HC1"))
+summary(model_28_robust)
+```
+
+```{r}
+#output for two models estabs mask
+tab_model(estabs_mask,estabs_mask1)
+```
+
+```{r}
+#output for two models estabs lockdown
+tab_model(estabs_lockdown,estabs_lockdown1)
+```
+
+```{r}
+#output for two models emp mask
+tab_model(emp_mask,emp_mask1)
+```
+
+```{r}
+#output for two models emp lockdown
+tab_model(emp_lockdown,emp_lock1)
+```
+
+```{r}
+#output for two models wage mask
+tab_model(emp_wage_mask,wage_mask1)
+```
+
+```{r}
+#output for two models wage lockdown
+tab_model(emp_wage_lock,wage_lock1)
+```
+
+```{r}
+#output for two models contributions mask
+tab_model(contri_mask,contri_mask1)
+```
+
+```{r}
+#output for two models contributions lockdown
+tab_model(contri_lockdown,contri_lock1)
+```
+#adding lockdown days into the regression
+```{r}
+library(readxl)
+lockdown_days_2020 <- read_excel("lockdown_days_2020.xlsx")
+```
+
+```{r}
+merg<-inner_join(y19_20, lockdown_days_2020, by="State")
+merg
+```
+
+```{r}
+estabs_lockdown_days<-lm(qtrly_estabs ~ y19_20*lockdown_days,data=merg)
+summary(estabs_lockdown_days)
+```
+
+```{r}
+emp_wage_lockdown_days = lm(total_qtrly_wages ~ y19_20*lockdown_days,data=merg)
+summary(emp_wage_lockdown_days)
+```
+# comparing average of all the counties and king county 
+
+```{r}
+mean_20<-with(merg, mean(qtr_emplvl_avg[y19_20 == 1]))
+mean_19<-with(merg, mean(qtr_emplvl_avg[y19_20 == 0]))
+king_19<-merg[merg$y19_20 == 0 & merg$area_title == 'King County', ]
+king_20<-merg[merg$y19_20 == 1 & merg$area_title == 'King County', ]
+king_20$qtr_emplvl_avg
+mean_19
+mean_20
+```
+**Average salary of King county in year 2019 is `r king_19$qtr_emplvl_avg`.**
+**Average salary of King county in year 2020 is `r king_20$qtr_emplvl_avg`.**
+**Average salary of all counties in year 2019 is `r mean_19`.**
+**Average salary of all counties in year 2020 is `r mean_20`.**
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
