@@ -1,0 +1,38 @@
+---
+title: "assignment4_econ"
+author: "Sravani Saripalli"
+date: "5/5/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(wooldridge)
+library(tidyverse)
+library(broom)
+library(texreg)
+library(car)
+library(FSA)
+
+```
+
+```{r results = "asis", echo=FALSE}
+multi_fit <- lm(colgpa~hsgpa+actmth+acteng, data = econmath)
+htmlreg(multi_fit,
+        stars=c(0.01, 0.05, 0.10),
+        star.symbol="\\*",
+        caption="Results for Part i",
+        caption.above=TRUE,
+        digits=4)
+```
+
+```{r}
+clg_gpa=0.659007*0.343
+act_math=0.226039401/0.130198
+act_std=17.36120378/3.773354
+```
+

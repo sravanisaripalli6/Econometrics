@@ -1,0 +1,85 @@
+---
+title: "assignment6_econ"
+author: "Sravani Saripalli"
+date: "5/5/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(wooldridge)
+library(tidyverse)
+library(broom)
+library(texreg)
+library(car)
+library(FSA)
+
+```
+
+```{r results = "asis", echo=FALSE}
+model_i <- lm(lavgsal ~bs, data=benefits)
+
+htmlreg(model_i,
+        stars=c(0.01, 0.05, 0.10),
+        star.symbol="\\*",
+        caption="Results for Part i",
+        caption.above=TRUE,
+        digits=4)
+```
+
+```{r}
+ran_bs<-range(benefits$bs)
+sd_bs=sd(benefits$bs)
+lbs<-log(benefits$bs)
+range_lbs<-range(lbs)
+sd_lbs=sd(lbs)
+```
+
+* The range of the variable bs is `r ran_bs`.
+* The range of the variable lbs is `r range_lbs`
+* The standard deviation of the variable bs is `r sd_bs`
+* The standard deviation of the variable lbs is `r sd_lbs`
+
+```{r results = "asis", echo=FALSE}
+model_lbs <- lm(lavgsal ~log(bs), data=benefits)
+
+htmlreg(list(model_i,model_lbs),
+        stars=c(0.01, 0.05, 0.10),
+        star.symbol="\\*",
+        caption="Results for Part bs and log(bs)",
+        caption.above=TRUE,
+        digits=4)
+```
+
+```{r results = "asis", echo=FALSE}
+model_ii <- lm(lavgsal ~bs+lenroll+lstaff+lunch, data=benefits)
+
+htmlreg(model_ii,
+        stars=c(0.01, 0.05, 0.10),
+        star.symbol="\\*",
+        caption="Results for Part ii",
+        caption.above=TRUE,
+        digits=4)
+```
+
+```{r results = "asis", echo=FALSE}
+square_lunch<benefits$lunch^2
+model_iii <- lm(lavgsal ~bs+lenroll+lstaff+lunch+square_lunch, data=benefits)
+
+htmlreg(model_iii,
+        stars=c(0.01, 0.05, 0.10),
+        star.symbol="\\*",
+        caption="Results for Part iii",
+        caption.above=TRUE,
+        digits=4)
+```
+
+
+
+
+
+

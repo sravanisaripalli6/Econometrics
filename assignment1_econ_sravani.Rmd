@@ -1,0 +1,85 @@
+---
+title: "assignment1_econ"
+author: "Sravani Saripalli"
+date: "5/5/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(wooldridge)
+library(tidyverse)
+library(broom)
+library(texreg)
+library(car)
+library(FSA)
+
+```
+
+```{r echo=FALSE}
+# Computer exercise Question 1: 
+
+#how many counties in the data set?
+
+county_m_96 <- countymurders[countymurders$year==1996,]
+
+total_counties=nrow(county_m_96)
+#Of these, how many have zero murders
+
+zero_m_96 <- county_m_96[county_m_96$murders==0,]
+
+zero_murders <- nrow(zero_m_96)
+
+#what percentage of counties have zero executions 
+
+zero_e_96 <- county_m_96[county_m_96$execs==0,]
+
+zero_executions <- nrow(zero_e_96)
+
+percentage_executions=(zero_executions/total_counties)*100
+
+```
+
+
+```{r}
+
+#What is the largest number of executions?
+
+countymurders %>%
+
+filter(countymurders$year==1996) %>%
+
+summarise(max_ex=max(execs))
+```
+
+```{r}
+
+#Compute the average number of executions
+
+countymurders %>%
+
+filter(countymurders$year==1996) %>%
+
+summarise(average=mean(execs))
+
+#conclusion: There are large number of counties with no executions in 1996 ,thus the average is small.
+
+```
+
+#Computer exercise question 3 
+
+```{r}
+
+#Compute the correlation coefficient between murders and execs and describe what you find?
+
+res<-cor.test(county_m_96$murders,county_m_96$execs,method=c("pearson", "kendall", "spearman"))
+
+res
+
+```
+
+

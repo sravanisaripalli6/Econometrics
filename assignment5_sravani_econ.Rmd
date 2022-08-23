@@ -1,0 +1,44 @@
+---
+title: "assignment5_econ"
+author: "Sravani Saripalli"
+date: "5/5/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(wooldridge)
+library(tidyverse)
+library(broom)
+library(texreg)
+library(car)
+library(FSA)
+
+```
+
+```{r results= 'asis', echo=False}
+model_i<-lm(colgpa~hsperc+sat,data=gpa)
+htmlreg(model_i,
+        stars=c(0.01,0.05,0.10),
+        star.symbol="\\*",
+        caption="Results for part ii",
+        caption.above=TRUE,
+        digists=4)
+```
+
+
+```{r results= 'asis', echo=False}
+model_ii<-lm(colgpa~hsperc+sat,data=gpa2[1:2070])
+htmlreg(list(model_i,model_ii),
+        stars=c(0.01,0.05,0.10),
+        star.symbol="\\*",
+        caption="Results for part ii",
+        caption.above=TRUE,
+        digists=4)
+```
+
+* **We can observe that the hsperc standard error in model_ii is greater than in model_i.**

@@ -1,0 +1,97 @@
+---
+title: "assignment3_econ"
+author: "Sravani Saripalli"
+date: "5/5/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(wooldridge)
+library(tidyverse)
+library(broom)
+library(texreg)
+library(car)
+library(FSA)
+
+```
+
+```{r}
+#install.packages("wooldridge","dplyr")
+library(wooldridge)
+data("charity")
+```
+```{r}
+fit1<-lm(gift~mailsyear+giftlast+propresp,data=charity)
+fit1
+fit2<-lm(gift~mailsyear,data=charity)
+fit2
+summary(fit1)
+summary(fit2)
+```
+
+```{r}
+fit3<-lm(gift~mailsyear+giftlast+proresp+avggift,data=charity)
+fit3
+summary(fit3)
+```
+
+```{r}
+range_edu<- range(htv$educ) #What is the range of the educ variable in the sample?
+range_edu
+print(range_edu[2]-range_edu[1])
+```
+
+```{r}
+twelth_men=length(htv$educ[htv$educ == 12])
+total=length(htv$educ)
+percentage=(twelth_men/total)*100
+percentage
+```
+
+#Do the men or their parents have, on average, higher levels of education?
+```{r}
+mean(htv$educ)
+(mean(htv$motheduc) + mean(htv$fatheduc))/2
+```
+
+```{r}
+edu_fit <- lm(educ~motheduc+fatheduc, data = htv)
+edu_fit
+summary(edu_fit)
+```
+
+```{r}
+multi_fit <- lm(educ~motheduc+fatheduc+abil, data = htv)
+multi_fit
+summary(multi_fit)
+```
+
+```{r}
+abil.sq <- htv$abil^2
+
+fit_abil <- lm(educ~motheduc+fatheduc+abil+abil.sq, data = htv)
+fit_abil
+summary(fit_abil)
+```
+
+```{r}
+length(htv$abil[htv$abil < -4.01])
+```
+
+```{r}
+educ.est <- fit_abil.df[1,] + (fit_abil.df[2, ]*mean(htv$motheduc)) + (fit_abil.df[3,]*mean(htv$fatheduc)) + (fit_abil.df[4,]*htv$abil) + fit_abil.df[5,]*abil.sq
+
+htv %>% ggplot(aes(x = abil, y = educ.est))+
+  geom_point(size = 1, color = "blue" )+
+  ylab("Predicted Education")+
+  xlab("Ability Level")
+```
+
+
+
+

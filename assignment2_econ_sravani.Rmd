@@ -1,0 +1,64 @@
+---
+title: "assignment2_econ"
+author: "Sravani Saripalli"
+date: "5/5/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(wooldridge)
+library(tidyverse)
+library(broom)
+library(texreg)
+library(car)
+library(FSA)
+
+```
+
+```{r}
+m=mean(wage2$wage)
+iq=mean(wage2$IQ)
+s=sd(wage2$IQ)
+```
+**Average salary of in the sample is `r m`.**
+**Average of IQ in the sample is `r iq`.**
+**Standard deviation of IQ in the sample is `r s`.**
+
+```{r}
+lm_fit<-lm(wage~IQ,data=wage2)
+lm_fit
+Summary(lm_fit)
+```
+
+```{r}
+lm_fit_log_level <- lm(log(wage)~IQ, data=wage2)
+lm_fit_log_level
+summary(lm_fit_log_level)
+```
+
+```{r}
+number=nrow(gpa1)
+avg=mean(gpa1$colGPA)
+max_gpa=max(gpa1$colGPA)
+```
+**Number of students in college is `r number`.**
+**Average GPA of students in college is `r avg`.**
+**Maximum GPA of amoung students is `r max_gpa`.**
+
+```{r}
+total_pcs=sum(gpa1$PC==1)
+```
+**Total PCs are `r total_pcs`.**
+
+```{r}
+lm_gpa=lm(colGPA~PC,data=gpa1)
+lm_gpa
+summary(lm_gpa)
+```
+
+
